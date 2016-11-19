@@ -22,3 +22,18 @@ Example
 ```
 python main.py -query "adoption agency email" -pages 10 -o emails.csv
 ```
+
+Installation
+------------
+This script depends on `google` which can be found [here](https://github.com/MarioVilas/google.git).
+
+Automatic installation can be done by running `$ ./setup.bash`. This script depends on pip and git to be installed. You will be required to type your password to complete automatic installation.
+
+To perform the same installation manually run the following commands.
+```bash
+pip install -r requirements.txt
+
+git clone --depth=1 https://github.com/MarioVilas/google.git
+cd google/
+sudo python setup.py install
+```
