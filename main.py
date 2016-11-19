@@ -17,7 +17,6 @@ Date: 5/26/13
 from google import search as GoogleSearch
 from bs4 import BeautifulSoup
 import urllib2, re, csv, os
-import argparse
 
 class ScrapeProcess(object):
     emails = []  # for duplication prevention
@@ -50,13 +49,16 @@ class ScrapeProcess(object):
                 self.csvwriter.writerow([pageTitle, url.encode("utf8"), email])
                 self.emails.append(email)
 
-parser = argparse.ArgumentParser(description='Scrape Google results for emails')
-parser.add_argument('-query', type=str, default='test', help='a query to use for the Google search')
-parser.add_argument('-pages', type=int, default=10, help='number of Google results pages to scrape')
-parser.add_argument('-o', type=str, default='emails.csv', help='output filename')
+if __name__ == "__main__":
+    import argparse
 
-args   = parser.parse_args()
-args.o = args.o+'.csv' if '.csv' not in args.o else args.o  # make sure filename has .csv extension
+    parser = argparse.ArgumentParser(description='Scrape Google results for emails')
+    parser.add_argument('-query', type=str, default='test', help='a query to use for the Google search')
+    parser.add_argument('-pages', type=int, default=10, help='number of Google results pages to scrape')
+    parser.add_argument('-o', type=str, default='emails.csv', help='output filename')
 
-s = ScrapeProcess(args.o)
-s.go(args.query, args.pages)
+    args   = parser.parse_args()
+    args.o = args.o+'.csv' if '.csv' not in args.o else args.o  # make sure filename has .csv extension
+
+    s = ScrapeProcess(args.o)
+    s.go(args.query, args.pages)
