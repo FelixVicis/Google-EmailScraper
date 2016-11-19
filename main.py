@@ -14,12 +14,15 @@ Output files are saved as csv.
 
 Date: 5/26/13
 '''
-from xgoogle.search import GoogleSearch
+from google import search as GoogleSearch
+from bs4 import BeautifulSoup
 import urllib2, re, csv, os
 import argparse
 
 class ScrapeProcess(object):
     emails = []  # for duplication prevention
+    ReEmailAddress    = r'([A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*)'
+    ReCsvProblemChars = r"[\t\n,]"
 
     def __init__(self, filename):
         self.filename  = filename
@@ -27,27 +30,24 @@ class ScrapeProcess(object):
         self.csvwriter = csv.writer(self.csvfile)
 
     def go(self, query, pages):
-        search = GoogleSearch(query)
-        search.results_per_page = 10
+        search = GoogleSearch(query, stop=pages)
+        for url in search:
+            self.scrape(url)
 
-        for i in range(pages):
-            search.page = i
-            results = search.get_results()
-            for page in results:
-                self.scrape(page)
-            
-    def scrape(self, page):
+    def scrape(self, url):
         try:
-            request = urllib2.Request(page.url.encode("utf8"))
-            html    = urllib2.urlopen(request).read()
+            request  = urllib2.Request(url.encode("utf8"))
+            html     = urllib2.urlopen(request).read()
+            soupHtml = BeautifulSoup(html, "html.parser")
         except Exception, e:
-            return
+            raise e
 
-        emails = re.findall(r'([A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*)', html)
+        emails    = re.findall(ReEmailAddress, soupHtml.getText())
+        pageTitle = re.sub(ReCsvProblemChars, "", soupHtml.title.string)
 
         for email in emails:
             if email not in self.emails:  # if not a duplicate
-                self.csvwriter.writerow([page.title.encode('utf8'), page.url.encode("utf8"), email])
+                self.csvwriter.writerow([pageTitle, url.encode("utf8"), email])
                 self.emails.append(email)
 
 parser = argparse.ArgumentParser(description='Scrape Google results for emails')
