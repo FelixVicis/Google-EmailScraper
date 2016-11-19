@@ -18,10 +18,11 @@ from google import search as GoogleSearch
 from bs4 import BeautifulSoup
 import urllib2, re, csv, os
 
+ReEmailAddress    = r'([A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*)'
+ReCsvProblemChars = r"[\t\n,]"
+
 class ScrapeProcess(object):
     emails = []  # for duplication prevention
-    ReEmailAddress    = r'([A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*)'
-    ReCsvProblemChars = r"[\t\n,]"
 
     def __init__(self, filename):
         self.filename  = filename
