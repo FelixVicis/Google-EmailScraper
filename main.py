@@ -40,6 +40,11 @@ class ScrapeProcess(object):
             html     = urllib2.urlopen(request).read()
             soupHtml = BeautifulSoup(html, "html.parser")
         except Exception, e:
+            if (e.code):
+                print 'WARNING: Url: {0} could not be accessed. Http Status: {1}'.format(url, e.code)
+
+                return
+
             raise e
 
         emails    = re.findall(ReEmailAddress, soupHtml.getText())
