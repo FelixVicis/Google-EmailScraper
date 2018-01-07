@@ -16,17 +16,21 @@ Date: 5/26/13
 '''
 from google import search as GoogleSearch
 from bs4 import BeautifulSoup
-import urllib2, re, csv, os
+import urllib2
+import re
+import csv
+import os
 
-ReEmailAddress    = r'([A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*)'
+ReEmailAddress = r'([A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*)'
 ReCsvProblemChars = r"[\t\n,]"
+
 
 class ScrapeProcess(object):
     emails = []  # for duplication prevention
 
     def __init__(self, filename):
-        self.filename  = filename
-        self.csvfile   = open(filename, 'wb+')
+        self.filename = filename
+        self.csvfile = open(filename, 'wb+')
         self.csvwriter = csv.writer(self.csvfile)
 
     def go(self, query, pages):
@@ -36,8 +40,8 @@ class ScrapeProcess(object):
 
     def scrape(self, url):
         try:
-            request  = urllib2.Request(url.encode("utf8"))
-            html     = urllib2.urlopen(request).read()
+            request = urllib2.Request(url.encode("utf8"))
+            html = urllib2.urlopen(request).read()
             soupHtml = BeautifulSoup(html, "html.parser")
         except Exception, e:
             if (e.code):
@@ -47,7 +51,7 @@ class ScrapeProcess(object):
 
             raise e
 
-        emails    = re.findall(ReEmailAddress, soupHtml.getText())
+        emails = re.findall(ReEmailAddress, soupHtml.getText())
         pageTitle = re.sub(ReCsvProblemChars, "", soupHtml.title.string)
 
         for email in emails:
@@ -59,12 +63,14 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description='Scrape Google results for emails')
-    parser.add_argument('-query', type=str, default='test', help='a query to use for the Google search')
-    parser.add_argument('-pages', type=int, default=10, help='number of Google results pages to scrape')
+    parser.add_argument('-query', type=str, default='test',
+                        help='a query to use for the Google search')
+    parser.add_argument('-pages', type=int, default=10,
+                        help='number of Google results pages to scrape')
     parser.add_argument('-o', type=str, default='emails.csv', help='output filename')
 
-    args   = parser.parse_args()
-    args.o = args.o+'.csv' if '.csv' not in args.o else args.o  # make sure filename has .csv extension
+    args = parser.parse_args()
+    args.o = args.o + '.csv' if '.csv' not in args.o else args.o  # make sure filename has .csv extension
 
     s = ScrapeProcess(args.o)
     s.go(args.query, args.pages)
