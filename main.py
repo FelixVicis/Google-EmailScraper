@@ -52,7 +52,7 @@ class ScrapeProcess(object):
             raise e
 
         emails = re.findall(ReEmailAddress, soupHtml.getText())
-        pageTitle = re.sub(ReCsvProblemChars, "", soupHtml.title.string)
+        pageTitle = re.sub(ReCsvProblemChars, "", soupHtml.title.string if soupHtml.title else url)
 
         for email in emails:
             if email not in self.emails:  # if not a duplicate
