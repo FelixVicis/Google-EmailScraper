@@ -14,14 +14,12 @@ Output files are saved as csv.
 
 Date: 5/26/13
 '''
-from google import search as GoogleSearch
-from bs4 import BeautifulSoup
-import urllib2
+from search import websites
+from parse import find_emails
 import re
 import csv
 import os
 
-ReEmailAddress = r'([A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*)'
 ReCsvProblemChars = r"[\t\n,]"
 
 
@@ -34,29 +32,20 @@ class ScrapeProcess(object):
         self.csvwriter = csv.writer(self.csvfile)
 
     def go(self, query, pages):
-        search = GoogleSearch(query, stop=pages)
-        for url in search:
+        for url in websites(query, stop=pages):
             self.scrape(url)
 
     def scrape(self, url):
         try:
-            request = urllib2.Request(url.encode("utf8"))
-            html = urllib2.urlopen(request).read()
-            soupHtml = BeautifulSoup(html, "html.parser")
-        except Exception, e:
-            if (e.code):
-                print 'WARNING: Url: {0} could not be accessed. Http Status: {1}'.format(url, e.code)
+            title, emails = find_emails(url)
+        except Exception as e:
+            return
 
-                return
-
-            raise e
-
-        emails = re.findall(ReEmailAddress, soupHtml.getText())
-        pageTitle = re.sub(ReCsvProblemChars, "", soupHtml.title.string if soupHtml.title else url)
+        title = re.sub(ReCsvProblemChars, '', title)
 
         for email in emails:
             if email not in self.emails:  # if not a duplicate
-                self.csvwriter.writerow([pageTitle, url.encode("utf8"), email])
+                self.csvwriter.writerow([title, url.encode("utf8"), email])
                 self.emails.append(email)
 
 if __name__ == "__main__":
