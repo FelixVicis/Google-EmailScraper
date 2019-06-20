@@ -29,12 +29,19 @@ class ScrapeProcess(object):
         except Exception as e:
             return
 
-        title = re.sub(ReCsvProblemChars, '', title)
+        try:
+            title = re.sub(ReCsvProblemChars, '', title)
+        except Exception as e:
+            print('Unexpected type for title', title)
+            title = 'Untitled'
 
         for email in emails:
             if email not in self.emails:  # if not a duplicate
-                self.csvwriter.writerow([title, url.encode("utf8"), email])
-                self.emails.append(email)
+                try:
+                    self.csvwriter.writerow([title, url.encode("utf8"), email])
+                    self.emails.append(email)
+                except Exception as e:
+                    print('!! Cannot write', url, email)
 
 if __name__ == "__main__":
     import argparse
